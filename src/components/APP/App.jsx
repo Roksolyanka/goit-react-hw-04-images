@@ -38,15 +38,15 @@ export const App = () => {
     setQuery(queryTrim);
     setImages([]);
     setPage(1);
-    fetchImages();
+    fetchImages(queryTrim, 1);
   };
 
-  const fetchImages = async () => {
+  const fetchImages = async (query, currentPage) => {
     setIsLoading(true);
 
     try {
       const apiKey = '36422452-9b888b62de5b5be2dbb1e9e04';
-      const url = `https://pixabay.com/api/?q=${query}&page=${page}&key=${apiKey}&image_type=photo&orientation=horizontal&per_page=12`;
+      const url = `https://pixabay.com/api/?q=${query}&page=${currentPage}&key=${apiKey}&image_type=photo&orientation=horizontal&per_page=12`;
       const response = await fetch(url);
       const data = await response.json();
 
@@ -54,7 +54,7 @@ export const App = () => {
         toast.error('No images were found for your request!', toastConfig);
       } else {
         setImages(prevImages => [...prevImages, ...data.hits]);
-        setPage(prevPage => prevPage + 1);
+        setPage(currentPage + 1);
         toast.success('Images successfully uploaded!', toastConfig);
       }
     } catch (error) {
@@ -79,7 +79,9 @@ export const App = () => {
       <Searchbar onSubmit={onSubmit} />
       <ImageGallery images={images} onClick={onModalClick} />
       {isLoading && <Loader />}
-      {images.length > 0 && !isLoading && <Button onClick={fetchImages} />}
+      {images.length > 0 && !isLoading && (
+        <Button onClick={() => fetchImages(query, page)} />
+      )}
       {showModal && <Modal image={selectedImage} onClose={onModalClick} />}
       <ToastContainer
         position="top-right"
